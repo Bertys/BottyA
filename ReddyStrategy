@@ -1,11 +1,13 @@
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © BertBB
 //@version=2
-strategy("Reddylast", overlay=true)
+strategy("Brypbot", overlay=true)
 
 
 ref=input('15')
-ref2=input('9')
+ema1=ema(close,7)
+ema2=ema(close,15)
+
 
 outOpen = security(tickerid, ref, open)
 outClose = security(tickerid, ref, close)
@@ -13,24 +15,20 @@ outClose = security(tickerid, ref, close)
 
 plot(outOpen,color=white)
 plot(outClose,color=yellow)
+plot(ema1,color=green)
+plot(ema2,color=blue)
+
 
 LONG = crossover(security(tickerid, ref, close),security(tickerid, ref, open))
 plotshape( LONG, text='💣', style=shape.arrowup, location=location.belowbar, color=#32CD32, textcolor=black, offset=0, transp=0)
-SHORT = crossunder(security(tickerid, ref, close),security(tickerid, ref, open))
-plotshape( SHORT, text='🧨', style=shape.arrowdown, location=location.abovebar, color=#fb0d0d, textcolor=black, offset=0, transp=0)
 
-
-closeCondition2 = crossover(security(tickerid, ref2, close),security(tickerid, ref2, open))
-//closeShortt = crossover(out22, out21)
 closeLong = crossover(close,security(tickerid, ref, close))
+closeL = crossunder(outClose,ema1)
+shorty = ema1 < ema2
 
 if (LONG)
     if (strategy.position_size == 0)
         strategy.entry("buy", strategy.long, 1, when=LONG) // buy by market
 
-if (SHORT)
-    if (strategy.position_size == 0)
-        strategy.entry("sell", strategy.short, 1, when=SHORT) // buy by market
 
-strategy.close('sell', when=closeCondition2)
-strategy.close('buy', when=closeLong)
+strategy.close('buy', when=closeL)
